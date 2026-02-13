@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You ❤️</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Georgia', serif;
+    scroll-behavior:smooth;
+}
+
+body{
+    background: linear-gradient(180deg,#7b1e1e,#a83232,#5a0f0f);
+    color:white;
+    overflow-x:hidden;
+}
+
+/* Sections */
+section{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:40px;
+    position:relative;
+}
+
+h1{ font-size:60px; }
+h2{ margin-top:20px; }
+
+/* Scroll Button */
+.scroll-btn{
+    position:absolute;
+    bottom:30px;
+    padding:10px 25px;
+    background:#ff4d6d;
+    border:none;
+    border-radius:20px;
+    color:white;
+    cursor:pointer;
+}
+
+/* Typing */
+#typedText{
+    max-width:700px;
+    font-size:20px;
+    line-height:1.6;
+    min-height:180px;
+}
+
+/* Heart */
+.heart{
+    font-size:70px;
+    animation:beat 1s infinite;
+    margin:20px 0;
+}
+@keyframes beat{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.2);}
+}
+
+/* Buttons */
+.buttons{
+    margin-top:20px;
+    position:relative;
+}
+
+button{
+    padding:15px 30px;
+    font-size:18px;
+    border:none;
+    border-radius:30px;
+    cursor:pointer;
+}
+
+.yes{
+    background:#ff4d6d;
+    color:white;
+    margin-right:10px;
+}
+
+.no{
+    background:#333;
+    color:white;
+    position:absolute;
+}
+
+/* YES PAGE */
+#yesPage{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:radial-gradient(circle,#a83232,#3d0a0a);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    visibility:hidden;
+    opacity:0;
+    transition:0.5s;
+    z-index:10;
+}
+
+#yesPage.active{
+    visibility:visible;
+    opacity:1;
+}
+
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    pointer-events:none;
+    z-index:5;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="confetti"></canvas>
+
+<!-- PAGE 1 -->
+<section id="page1">
+    <p>A message just for you</p>
+    <h1>Emanuele ❤️</h1>
+    <button class="scroll-btn" onclick="scrollToPage('page2')">Scroll Down ↓</button>
+</section>
+
+<!-- PAGE 2 -->
+<section id="page2">
+    <div id="typedText"></div>
+    <button class="scroll-btn" onclick="scrollToPage('page3')">Scroll Down ↓</button>
+</section>
+
+<!-- PAGE 3 -->
+<section id="page3">
+    <div class="heart">❤️</div>
+    <h2>Will you be my Valentine?</h2>
+
+    <div class="buttons">
+        <button class="yes" id="yesBtn">YES 💕</button>
+        <button class="no" id="noBtn">NO 😢</button>
+    </div>
+
+    <button class="scroll-btn" onclick="scrollToPage('page1')">Back to Top ↑</button>
+</section>
+
+<!-- YES SCREEN -->
+<div id="yesPage">
+    <h1>SHE SAID YES! 🎉</h1>
+    <p>You made this the best Valentine’s Day ever 💖</p>
+</div>
+
+<script>
+
+/* Smooth Scroll */
+function scrollToPage(id){
+    document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
+
+/* Typing Effect */
+const text = `My dearest Emanuele,
+
+There are things in this world that are hard to say —
+because they are deeply felt.
+
+You are my favorite notification,
+my peace,
+my happiness.
+
+And today I just want to ask...
+
+Will you be mine? 💖`;
+
+let i = 0;
+function typeWriter(){
+    if(i < text.length){
+        document.getElementById("typedText").innerHTML += 
+        text.charAt(i) === "\n" ? "<br>" : text.charAt(i);
+        i++;
+        setTimeout(typeWriter, 35);
+    }
+}
+typeWriter();
+
+/* NO Button Runs (works on mobile tap too) */
+const noBtn = document.getElementById("noBtn");
+
+function moveNo(){
+    const x = Math.random()*200 - 100;
+    const y = Math.random()*150 - 75;
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+noBtn.addEventListener("mouseover", moveNo);
+noBtn.addEventListener("click", moveNo);
+noBtn.addEventListener("touchstart", moveNo);
+
+/* CONFETTI SYSTEM */
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+let confettiRunning = false;
+
+function createConfetti(){
+    particles = [];
+    for(let i=0;i<120;i++){
+        particles.push({
+            x: Math.random()*canvas.width,
+            y: Math.random()*canvas.height - canvas.height,
+            size: Math.random()*6+4,
+            speed: Math.random()*3+2,
+            color: `hsl(${Math.random()*360}, 100%, 50%)`
+        });
+    }
+}
+
+function drawConfetti(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x,p.y,p.size,p.size);
+        p.y += p.speed;
+        if(p.y > canvas.height){
+            p.y = -10;
+        }
+    });
+}
+
+/* YES BUTTON FIXED */
+document.getElementById("yesBtn").addEventListener("click", function(){
+    document.getElementById("yesPage").classList.add("active");
+
+    if(!confettiRunning){
+        confettiRunning = true;
+        createConfetti();
+        setInterval(drawConfetti,20);
+    }
+});
+
+// Optional: Resize canvas on window resize for better responsiveness
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+</script>
+
+</body>
+</html>
